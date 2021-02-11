@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
 	"time"
 
@@ -127,6 +129,12 @@ func UserByCityGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
+
 	var dir string
 
 	flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
@@ -144,13 +152,25 @@ func main() {
 	// This will serve files under http://localhost:8000/portfolio/<filename>
 	r.PathPrefix("/static/").Handler(http.StripPrefix("", http.FileServer(http.Dir(dir))))
 
-	srv := &http.Server{
+	s := &http.Server{
 		Handler: r,
-		Addr:    "127.0.0.1:8000",
+		Addr:    ":" + port,
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	fmt.Println("Server listening on localhost:8000")
-	log.Fatal(srv.ListenAndServe())
+	fmt.Println("Starting server on port 8080")
+	go func() {
+		err := s.ListenAndServe()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, os.Interrupt)
+	signal.Notify(sigChan, os.Kill)
+
+	sig := <-sigChan
+	fmt.Println("Yaah, server nya lagi down", sig)
 }
