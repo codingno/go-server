@@ -12,7 +12,22 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
+
+// use godot package to load/read the .env file and
+// return the value of the key
+func goDotEnvVariable(key string) string {
+
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	return os.Getenv(key)
+}
 
 // User data
 type User struct {
@@ -129,7 +144,8 @@ func UserByCityGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := os.Getenv("PORT")
+	port := goDotEnvVariable("PORT")
+	// port := os.Getenv("PORT")
 
 	if port == "" {
 		log.Fatal("$PORT must be set")
@@ -159,7 +175,7 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	fmt.Println("Starting server on port 8080")
+	fmt.Println("Starting server on PORT:" + port)
 	go func() {
 		err := s.ListenAndServe()
 		if err != nil {
