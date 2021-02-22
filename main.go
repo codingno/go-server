@@ -144,8 +144,8 @@ func UserByCityGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := goDotEnvVariable("PORT")
-	// port := os.Getenv("PORT")
+	// port := goDotEnvVariable("PORT")
+	port := os.Getenv("PORT")
 
 	if port == "" {
 		log.Fatal("$PORT must be set")
