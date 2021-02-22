@@ -157,10 +157,10 @@ func main() {
 	flag.Parse()
 
 	r := mux.NewRouter()
-	// r.HandleFunc("/", HomeHandler)
-	// r.HandleFunc("/user/{username}", UserGetHandler).Methods("GET")
-	// r.HandleFunc("/city/{city}", UserByCityGetHandler).Methods("GET")
-	// r.HandleFunc("/user", GetAllUserHandler).Methods("GET")
+	r.HandleFunc("/", HomeHandler)
+	r.HandleFunc("/user/{username}", UserGetHandler).Methods("GET")
+	r.HandleFunc("/city/{city}", UserByCityGetHandler).Methods("GET")
+	r.HandleFunc("/user", GetAllUserHandler).Methods("GET")
 
 	// This will serve files under http://localhost:8000/portfolio/<filename>
 	r.PathPrefix("/portfolio/").Handler(http.StripPrefix("", http.FileServer(http.Dir(dir))))
