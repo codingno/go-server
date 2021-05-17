@@ -59,17 +59,24 @@ func ErrorUserNotFound(name string) error {
 	return fmt.Errorf("User %v not found", name)
 }
 
-func findUser(name string) (int, error) {
-	for i, user := range user {
+func findUser(name string) ([]*User, error) {
+	var result []*User
+	for _, user := range user {
 		dataFirstName := strings.ToLower(user.FirstName)
 		dataLastName := strings.ToLower(user.LastName)
 		input := strings.ToLower(name)
-		if dataFirstName == input || dataLastName == input {
-			return i, nil
+		// if dataFirstName == input || dataLastName == input {
+		if strings.Contains(dataFirstName, input) || strings.Contains(dataLastName, input) {
+			result = append(result, user)
+			// return i, nil
 		}
 	}
+	if len(result) == 0 {
+		return nil, ErrorUserByCityNotFound(name)
+	}
+	return result, nil
 
-	return -1, ErrorUserNotFound(name)
+	// return -1, ErrorUserNotFound(name)
 }
 
 // HomeHandler for routing to homepage
@@ -88,14 +95,14 @@ func GetAllUserHandler(w http.ResponseWriter, r *http.Request) {
 // UserGetHandler for routing to homepage
 func UserGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	i, err := findUser(vars["username"])
+	resultUser, err := findUser(vars["username"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user[i])
+	json.NewEncoder(w).Encode(resultUser)
 }
 
 // ErrorUserByCityNotFound (cityName string) error {
